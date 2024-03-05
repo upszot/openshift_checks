@@ -48,16 +48,16 @@ def cargar_configuracion():
 def ejecutar_script_bash(namespace, cluster, url, script, clave):
     comando_bash = f"{script} {namespace} {cluster} {url} {clave}"
     #subprocess.run(comando_bash, shell=True)
-    #print(f"comando_bash: {comando_bash}")
+    print(f"comando_bash: {comando_bash}")
     
-    #resultado = subprocess.run(comando_bash, shell=True, capture_output=True)
+    resultado = subprocess.run(comando_bash, shell=True, capture_output=True)
     #resultado = subprocess.run(['C:/Program Files/Git/usr/bin/bash.exe', '-c', comando_bash], capture_output=True)
-    resultado = subprocess.run(['bash.exe', '-c', comando_bash], capture_output=True, text=True)
+    #resultado = subprocess.run(['bash.exe', '-c', comando_bash], capture_output=True, text=True)
 
-    print(f"Salida estándar del script: {resultado.stdout}")
+    #print(f"Salida estándar del script: {resultado.stdout}")
     
-    if resultado.stderr:
-        print(f"Error al ejecutar el script: {resultado.stderr}")
+    #if resultado.stderr:
+    #    print(f"Error al ejecutar el script: {resultado.stderr}")
 
     print("\n")
 
