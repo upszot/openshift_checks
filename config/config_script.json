@@ -1,0 +1,8 @@
+{
+    "scripts": [
+      {"script": "scripts/script_1.sh", "enabled": true},
+      {"script": "scripts/script_2.sh", "enabled": false},
+      {"script": "scripts/script_3.sh", "enabled": false}
+    ]
+  }
+  

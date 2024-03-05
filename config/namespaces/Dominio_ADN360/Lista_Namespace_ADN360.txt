@@ -1,0 +1,8 @@
+########################
+#
+#
+#
+########################
+san-portaladn360-pro    pro-dw-dmz1 pro-dw-dmz2
+sanes-cdp360-pro    pro-intra1  pro-intra2
+

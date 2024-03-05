@@ -1,0 +1,14 @@
+########################
+#
+#
+#
+########################
+
+pro-dw-dmz1 https://pro-dw-dmz1.cluster:6443
+pro-dw-dmz2 https://pro-dw-dmz2.cluster:6443
+
+pro-intra1   https://pro-intra1.cluster:6443
+pro-intra2   https://pro-intra2.cluster:6443
+
+pro-conflu1   https://pro-conflu1.cluster:6443
+pro-conflu2   https://pro-conflu2.cluster:6443
