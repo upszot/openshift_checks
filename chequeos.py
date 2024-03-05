@@ -67,7 +67,8 @@ def main(DOMINIO):
     clave = input("Ingrese la clave: ")
 
     matriz_namespaces = obtener_matriz_namespace(DOMINIO)
-    print(f"Matriz Namespaces: {matriz_namespaces}")
+    print(f"\nMatriz Namespaces: {matriz_namespaces}")
+    print("\n")
     configuracion_scripts = cargar_configuracion()
     scripts_activos = [script["script"] for script in configuracion_scripts if script.get("enabled", False)]
 
