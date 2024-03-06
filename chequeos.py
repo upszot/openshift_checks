@@ -2,11 +2,16 @@ import os
 import sys
 import concurrent.futures
 import json
+import subprocess
+import threading
+
+# Agrega un bloqueo global para imprimir de manera segura
+lock_imprimir = threading.Lock()
+
 
 def obtener_url_cluster(CLUSTER_NAME, ENTORNO):
     LISTA_CLUSTER = f"config/Cluster/Entorno_{ENTORNO}/Lista_Cluster_{ENTORNO}.txt"
     URL_CLUSTER = None
-    #print(f"LISTA_CLUSTER: {LISTA_CLUSTER}")
 
     with open(LISTA_CLUSTER, 'r') as file:
         for line in file:
@@ -14,7 +19,6 @@ def obtener_url_cluster(CLUSTER_NAME, ENTORNO):
                 columns = line.strip().split()
                 if columns[0] == CLUSTER_NAME:
                     URL_CLUSTER = columns[1]
-                    #print(f"URL_CLUSTER: {URL_CLUSTER}")
                     break
 
     return URL_CLUSTER
@@ -40,30 +44,40 @@ def obtener_matriz_namespace(DOMINIO):
     return matriz_namespaces
 
 def cargar_configuracion():
-    with open("config/config_script.json", "r") as file:
-        configuracion = json.load(file)
-    return configuracion.get("scripts", [])
-
+    try:
+        with open("config/config_script.json", "r") as file:
+            configuracion = json.load(file)
+        return configuracion.get("scripts", [])
+    except (FileNotFoundError, json.JSONDecodeError) as e:
+        print(f"Error al cargar configuraciones: {e}")
+        return []
 
 def ejecutar_script_bash(namespace, cluster, url, script, clave):
-    comando_bash = f"{script} {namespace} {cluster} {url} {clave}"
-    #subprocess.run(comando_bash, shell=True)
-    print(f"comando_bash: {comando_bash}")
-    
-    resultado = subprocess.run(comando_bash, shell=True, capture_output=True)
-    #resultado = subprocess.run(['C:/Program Files/Git/usr/bin/bash.exe', '-c', comando_bash], capture_output=True)
-    #resultado = subprocess.run(['bash.exe', '-c', comando_bash], capture_output=True, text=True)
+    # Utiliza la ruta completa al ejecutable de Bash
+    ruta_bash = r"C:\Program Files\Git\usr\bin\bash.exe"
+    comando_bash = f'"{ruta_bash}" {script} {namespace} {cluster} {url} {clave}'
 
-    #print(f"Salida estándar del script: {resultado.stdout}")
-    
-    #if resultado.stderr:
-    #    print(f"Error al ejecutar el script: {resultado.stderr}")
+    try:
+        resultado = subprocess.run(comando_bash, shell=True, capture_output=True)
+        salida_stdout = resultado.stdout.decode().rstrip()
+        salida_stderr = resultado.stderr.decode().rstrip()
 
-    print("\n")
+        with lock_imprimir:
+            print(salida_stdout)
+            if salida_stderr:
+                print(f"Error al ejecutar el script:\n{salida_stderr}")
+
+            # Agrega una línea en blanco después de cada ejecución
+            print()
+
+    except Exception as e:
+        with lock_imprimir:
+            print(f"Error al ejecutar el script: {e}")
+
+
 
 def main(DOMINIO):
     print(f"Dominio: {DOMINIO}")
-    # Solicitar al usuario que ingrese una clave
     clave = input("Ingrese la clave: ")
 
     matriz_namespaces = obtener_matriz_namespace(DOMINIO)
@@ -73,16 +87,13 @@ def main(DOMINIO):
     scripts_activos = [script["script"] for script in configuracion_scripts if script.get("enabled", False)]
 
     with concurrent.futures.ThreadPoolExecutor() as executor:
-        # Utilizar concurrent.futures para ejecutar las llamadas en paralelo
         futures = [
-            executor.submit(ejecutar_script_bash, *fila, script,clave)
+            executor.submit(ejecutar_script_bash, *fila, script, clave)
             for fila in matriz_namespaces
             for script in scripts_activos
         ]
 
-        # Esperar a que todas las llamadas se completen
         concurrent.futures.wait(futures)
-
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
